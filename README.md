@@ -6,6 +6,6 @@ TODO list:
 - [x] Task1
 - [x] Task3
 - [x] Task5
-- [ ] Task7
+- [x] Task7
 - [ ] Task9
 - [ ] Task11
