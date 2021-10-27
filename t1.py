@@ -1,17 +1,12 @@
 import struct
-
-elf = 'curl-amd64'
-macho = 'ip.so'
-
-FOR ELF
-
+print('---------TASK-1---------')
+elf = 'cat'
 elfFile = open(elf, 'rb')
 elfData = elfFile.read()
 
-#PARSING HEADER
+# PARSING HEADER
 
-
-elfHeaderTemplate = '<16B2HI3QI6H'
+elfHeaderTemplate = '16B2HI3QI6H'
 elfHeader = struct.unpack(elfHeaderTemplate, elfData[0:64])
 elfMagicNumber = elfHeader[0:16]
 elfObjFileType = elfHeader[16]
@@ -27,14 +22,11 @@ elfProgramHeaderTableEntryCount = elfHeader[25]
 elfSectionHeaderTableEntrySize = elfHeader[26]
 elfSectionHeaderTableEntryCount = elfHeader[27]
 elfSectionHeaderStringTableIndex = elfHeader[28]
-#elfMagicNumber = struct.unpack('16B', d[0:16])
 STDelfMagicNumber = (0x7F, 0x45, 0x4C, 0x46)
-
-print('-------TASK-1----------')
 
 if elfMagicNumber[0:4] != STDelfMagicNumber:
     print('ERROR: File is not ELF')
-    #quit()
+    exit()
 else:
     print('File type: ELF')
 
@@ -47,7 +39,6 @@ elif elfObjFileType == 2:
 elif elfObjFileType == 3:
     print('File type: dll')
 
-
 if hex(elfArchitecture) == 0x3E:
     print('Archutecture: ', elfArchitecture, '(AMD x86-64)')
 elif hex(elfArchitecture) == 0x28:
@@ -59,25 +50,46 @@ print('Segment offset: ', hex(elfProgramOffset), sep='')
 print('Segment count: ', elfProgramHeaderTableEntryCount)
 print('Section offset: ', hex(elfSectionOffset), sep='')
 print('Section count: ', elfSectionHeaderTableEntryCount)
-print('-----------------------')
+print('--------------------------')
 print()
 print()
 
-
-
-
-
-
-print('-------TASK-3----------')
 if elfSectionOffset == 0:
     print('There are not any sections in file')
+    exit()
 
-elfSectionTemplate = '<2I4Q2I2Q'
+elfSectionTemplate = '2I4Q2I2Q'
 pointer = elfSectionOffset
 size = elfSectionHeaderTableEntrySize
-print('Section name\tSection type\tSection offset\tSection addr\t')
-types = ['SHT_NULL', 'SHT_PROGBITS', 'SHT_SYMTAB', 'SHT_STRTAB', 'SHT_RELA', 'SHT_HASH', 'SHT_DYNAMIC', 'SHT_NOTE', 'SHT_NOBITS', 'SHT_REL', 'SHT_SHLIB', 'SHT_DYNSYM', 'SHT_INIT_ARRAY', 'SHT_FINI_ARRAY', 'SHT_PREINIT_ARRA', 'SHT_GROUP', 'SHT_SYMTAB_SHNDX', 'SHT_LOOS', 'SHT_HIOS', 'SHT_LOPROC', 'SHT_HIPROC', 'SHT_LOUSER', 'SHT_HIUSER']
+#print('Section name\tSection type\tSection offset\tSection addr\t')
+print("%4s%20s%20s%20s%20s" % (
+    '[x]', 'Section name', 'Section type', 'Section offset', 'Section addr'))
+types = ['NULL', 'PROGBITS', 'SYMTAB', 'STRTAB', 'RELA', 'HASH', 'DYNAMIC', 'NOTE', 'NOBITS', 'REL', 'SHLIB', 'DYNSYM',
+         'INIT_ARRAY', 'FINI_ARRAY', 'PREINIT_ARRA', 'GROUP', 'SYMTAB_SHNDX', 'LOOS', 'HIOS', 'LOPROC', 'HIPROC', 'LOUSER', 'HIUSER']
+namesSectPointer = pointer + size * (elfSectionHeaderTableEntryCount - 1)
+#print(elfData[elfSectionOffset:elfSectionOffset + size])
+section = struct.unpack(
+    elfSectionTemplate, elfData[namesSectPointer:namesSectPointer + size])
+sectionName = section[0]
+sectionType = section[1]
+sectionFlags = section[2]
+sectionAddr = section[3]
+sectionOffset = section[4]
+sectionSize = section[5]
+sectionLink = section[6]
+sectionInfo = section[7]
+sectionAllign = section[8]
+sectionEntrySize = section[9]
 
+templ = sectionSize * 'c'
+stra = struct.unpack(
+    templ, elfData[sectionOffset:sectionOffset + sectionSize])
+names = ''
+for i in range(len(stra)):
+    if stra[i] == b"\x00":
+        names += "$"
+    else:
+        names += stra[i].decode('utf-8', 'backslashreplace')
 for i in range(elfSectionHeaderTableEntryCount):
     section = struct.unpack(elfSectionTemplate, elfData[pointer:pointer + size])
     sectionName = section[0]
@@ -91,16 +103,46 @@ for i in range(elfSectionHeaderTableEntryCount):
     sectionAllign = section[8]
     sectionEntrySize = section[9]
     pointer += size
-    print("%12d%16s%18s%14s" % (sectionName, types[sectionType], hex(sectionOffset), hex(sectionAddr)))
+    if sectionType > len(types):
+        type = 'LOOS'
+    else:
+        type = types[sectionType]
+    name = ''
+    k = sectionName
+    while names[k] != '$':
+        name += names[k]
+        k += 1
+    if name == '.dynstr':
+        print('-------Task 4--------')
+        namesx = ''
+        templx = sectionSize * 'c'
+        print(hex(sectionOffset))
+        print(sectionSize)
+        strax = struct.unpack(templx, elfData[sectionOffset:sectionOffset + sectionSize])
+        print(strax)
+        for j in range(len(strax)):
+            if strax[j] == b"\x00":
+                print(namesx)
+                namesx = ''
+            else:
+                namesx += strax[j].decode('utf-8', 'backslashreplace')
 
-print('-----------------------')
+print('--------------------------')
 print()
 print()
+
+
+
+
+
+
+
 
 
 
 
 print('-------TASK-5----------')
+macho = 'ip.so'
 machoFile = open(macho, 'rb')
 machoData = machoFile.read()
 
@@ -203,11 +245,10 @@ print()
 
 
 
-# print('-------TASK-8----------')
+print('-------TASK-8----------')
 machoLoadCommandTemplate = '2I'
 machoSegmentTemplate = '2I16c4Q2i2I'
 machoSectionTemplate = '16c16c2Q8I'
-print("Imports:")
 for i in range(machoNumberCommands):
     CurrentLoadCommand = struct.unpack(machoLoadCommandTemplate, machoData[currentPoint:currentPoint + 8])
     CurrentLoadCommandType = CurrentLoadCommand[0]
@@ -215,7 +256,6 @@ for i in range(machoNumberCommands):
     #print(hex(CurrentLoadCommandType), hex(CurrentLoadCommandSize))
     #print(hex(CurrentLoadCommandType))
     if CurrentLoadCommandType == 0x2:
-        #That means this is segment (LC_SEGMENT_64)
         dynamicTemplate = '6I'
         cmd = struct.unpack(dynamicTemplate, machoData[currentPoint:currentPoint + 24])
         cmdType = cmd[0]
@@ -239,16 +279,5 @@ for i in range(machoNumberCommands):
 
     currentPoint += CurrentLoadCommandSize
 print('-----------------------')
-
-#print('-------TASK-9----------')
-
-
-
-
-
-
-
-
-#print('-----------------------')
-#print()
-#print()
+print()
+print()
