@@ -4,24 +4,25 @@ import sys
 elfFlag = 0
 machoFlag = 0
 peFlag = 0
+
 if len(sys.argv) == 0:
     exit()
 elif len(sys.argv) == 1:
     exit()
 elif len(sys.argv) == 2:
-    exit()
-elif len(sys.argv) == 3:
-    if sys.argv[1] == 'elf':
-        elfFlag = 1
-        elf = sys.argv[2]
-    elif sys.argv[1] == 'macho':
-        machoFlag = 1
-        macho = sys.argv[2]
-    elif sys.argv[1] == 'pe':
+    fileName = sys.argv[1]
+    file = open(fileName, 'rb')
+    fileData = file.read()
+    magicNum = struct.unpack('2B', fileData[0:2])
+    if magicNum[0] == 0x4d and magicNum[1] == 0x5a:
         peFlag = 1
-        pe = sys.argv[2]
-    else:
-        exit()
+        pe = fileName
+    if magicNum[0] == 0x7f and magicNum[1] == 0x45:
+        elfFlag = 1
+        elfc = fileName
+    if magicNum[0] == 0xcf and magicNum[1] == 0xfa:
+        machoFlag = 1
+        macho = fileName
 else:
     exit()
 
