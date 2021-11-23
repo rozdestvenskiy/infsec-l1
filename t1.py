@@ -467,7 +467,7 @@ if peFlag:
 
 
     importSectionAddrRAWAddr = peimportVA - importSectionAddr + importSectionRaw
-    alph = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._01234567890'
+    alph = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._--01234567890'
     libs = []
     for kk in range(int(peimportSize / 20)):
         x = struct.unpack('5I', peData[importSectionAddrRAWAddr:importSectionAddrRAWAddr + 20])
@@ -486,8 +486,6 @@ if peFlag:
                 libName = ''
                 xk = 0
         importSectionAddrRAWAddr += 20
-    for i in range(len(libs)):
+    for i in range(len(libs) - 1):
         print(libs[i])
     print('--------------------------')
-    print()
-    print()
