@@ -7,5 +7,5 @@ TODO list:
 - [x] Task3
 - [x] Task5
 - [x] Task7
-- [ ] Task9
-- [ ] Task11
+- [x] Task9
+- [x] Task11

@@ -398,7 +398,7 @@ if peFlag:
     print('--------------------------')
     print()
     print()
-    print(SizeOfOptionalHeader)
+    #print(SizeOfOptionalHeader)
     peOptionHeaderPointer = peHeaderPEOffset + 24
     peOptionHeaderTemplate = 'H2c9I6H4I2H6I32I'
     peOptionHeaderTemplate = 'H2c5IQ2I6H4I2H4Q2I32I'
@@ -409,14 +409,12 @@ if peFlag:
     for i in range(16):
         peDataS = struct.unpack(peDataTemplate, peData[peDataPointer:peDataPointer + 8])
         if i == 1:
-            peExportVA = peDataS[0]
-            peExportSize = peDataS[1]
-            #print(peExportVA)
+            peimportVA = peDataS[0]
+            peimportSize = peDataS[1]
+            #print(peimportVA)
         # if i == 1:
         #     prImportVa = peDataS[0]
         #     peImportSize = peDataS[1]
-
-        print(peDataS)
         peDataPointer += 8
 
     print('---------SECTIONS---------')
@@ -425,7 +423,7 @@ if peFlag:
     print("%4s%20s%20s%20s%20s" % ('[ x]', 'Section name', 'Section offset', 'Section addr', 'Section attr'))
 
     curExpAddr = 0
-    exportSectionAddr = 0
+    importSectionAddr = 0
 
     for i in range(NumberOfSections):
         peCurrentSection = struct.unpack(peSectionTemplate, peData[pePoint:pePoint + 40])
@@ -438,9 +436,9 @@ if peFlag:
         peCurrentSectionSizeRaw = peCurrentSection[10]
         peCurrentSectionPointerRaw = peCurrentSection[11]
 
-        if (peExportVA <= peCurrentSectionAddr) and (peExportVA >= curExpAddr):
-            exportSectionAddr = curExpAddr
-            exportSectionRaw = curRaw
+        if (peimportVA <= peCurrentSectionAddr) and (peimportVA >= curExpAddr):
+            importSectionAddr = curExpAddr
+            importSectionRaw = curRaw
         else:
             curExpAddr = peCurrentSectionAddr
             curRaw = peCurrentSectionPointerRaw
@@ -458,16 +456,7 @@ if peFlag:
         #print(hex(2753692 - peCurrentSectionAddr + peCurrentSectionPointerRaw))
         print("[%2d]%20s%20s%20s%22s" % (i, name, hex(peCurrentSectionPointerRaw), hex(peCurrentSectionAddr), hex(peCurrentSectionCharacteristics)))
 
-    exportSectionAddrRAWAddr = peExportVA - exportSectionAddr + exportSectionRaw
-    #print(exportSectionAddr)
-    #print(exportSectionRaw)
-    #print(exportSectionAddrRAWAddr)
-    for kk in range(16):
-        x = struct.unpack('5I', peData[exportSectionAddrRAWAddr:exportSectionAddrRAWAddr + 20])
-        #peCurrentSection = struct.unpack(peExportSize * 'c', peData[exportSectionAddrRAWAddr:exportSectionAddrRAWAddr + peExportSize])
-        #print(x)
-        exportSectionAddrRAWAddr += 20
-    print()
+
 
     print('--------------------------')
     print()
@@ -475,3 +464,30 @@ if peFlag:
 
 
     print('---------IMPORTS----------')
+
+
+    importSectionAddrRAWAddr = peimportVA - importSectionAddr + importSectionRaw
+    alph = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._01234567890'
+    libs = []
+    for kk in range(int(peimportSize / 20)):
+        x = struct.unpack('5I', peData[importSectionAddrRAWAddr:importSectionAddrRAWAddr + 20])
+        libRVA = x[3]
+        libRAW = libRVA - importSectionAddr + importSectionRaw
+        libName = ''
+        xk = 1
+        while xk == 1:
+            y = struct.unpack('c', peData[libRAW:libRAW + 1])
+            c = y[0].decode('utf-8', 'backslashreplace')
+            if c in alph:
+                libName += c
+                libRAW += 1
+            else:
+                libs.append(libName)
+                libName = ''
+                xk = 0
+        importSectionAddrRAWAddr += 20
+    for i in range(len(libs)):
+        print(libs[i])
+    print('--------------------------')
+    print()
+    print()
