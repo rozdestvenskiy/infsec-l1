@@ -19,7 +19,7 @@ elif len(sys.argv) == 2:
         pe = fileName
     if magicNum[0] == 0x7f and magicNum[1] == 0x45:
         elfFlag = 1
-        elfc = fileName
+        elf = fileName
     if magicNum[0] == 0xcf and magicNum[1] == 0xfa:
         machoFlag = 1
         macho = fileName
