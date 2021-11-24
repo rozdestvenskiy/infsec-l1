@@ -27,10 +27,8 @@ else:
     exit()
 
 if elfFlag:
-
     elfFile = open(elf, 'rb')
     elfData = elfFile.read()
-
     # PARSING HEADER
     print('----------HEADER----------')
 
@@ -91,13 +89,11 @@ if elfFlag:
     elfSectionTemplate = '2I4Q2I2Q'
     pointer = elfSectionOffset
     size = elfSectionHeaderTableEntrySize
-    #print('Section name\tSection type\tSection offset\tSection addr\t')
     print("%4s%20s%20s%20s%20s" % (
         '[x]', 'Section name', 'Section type', 'Section offset', 'Section addr'))
     types = ['NULL', 'PROGBITS', 'SYMTAB', 'STRTAB', 'RELA', 'HASH', 'DYNAMIC', 'NOTE', 'NOBITS', 'REL', 'SHLIB', 'DYNSYM',
              'INIT_ARRAY', 'FINI_ARRAY', 'PREINIT_ARRA', 'GROUP', 'SYMTAB_SHNDX', 'LOOS', 'HIOS', 'LOPROC', 'HIPROC', 'LOUSER', 'HIUSER']
     namesSectPointer = pointer + size * (elfSectionHeaderTableEntryCount - 1)
-    #print(elfData[elfSectionOffset:elfSectionOffset + size])
     section = struct.unpack(
         elfSectionTemplate, elfData[namesSectPointer:namesSectPointer + size])
     sectionName = section[0]
@@ -189,7 +185,6 @@ if machoFlag:
     print('Commands number: ', machoNumberCommands)
     machoSizeCommands = machoHeader[5]
     machoFlags = machoHeader[6]
-    #machoFlags = 0x100085
     flags = machoFlags
     print('Flags: ', hex(flags))
     if (flags & (1 << 0)) >> 0 == 1:
@@ -301,14 +296,10 @@ if machoFlag:
                 print("%16s%35s%30s%30s" % (name, nameSeg, hex(
                     CurrentSectionOffset), hex(CurrentSectionAddr)))
                 currentPointSects += 80
-        #currentPoint += CurrentLoadCommandSize
         currentPoint += CurrentLoadCommandSize
     print('--------------------------')
     print()
     print()
-
-# print('-------TASK-9----------')
-
 
 if peFlag:
 
@@ -318,8 +309,6 @@ if peFlag:
 
     peHeaderTemplate = '2c13H4H2H10HI'
     peHeader = struct.unpack(peHeaderTemplate, peData[0:64])
-    #print(peHeader)
-
     e_magic = (peHeader[0] + peHeader[1]).decode('utf-8', 'backslashreplace')
 
     if e_magic != 'MZ':
@@ -343,12 +332,13 @@ if peFlag:
     e_oemid = peHeader[19]
     e_oeminfo = peHeader[20]
     e_res2 = peHeader[21:31]
-    e_lfanew = peHeader[31] #PE HEADER OFFSET
+    e_lfanew = peHeader[31]  # PE HEADER OFFSET
     peHeaderPEOffset = e_lfanew
 
     print('File type: PE (magic num = MZ)')
     peHeaderPETemplate = 'I' + '2H3I2H'
-    peHeaderPE = struct.unpack(peHeaderPETemplate, peData[peHeaderPEOffset:peHeaderPEOffset + 24])
+    peHeaderPE = struct.unpack(
+        peHeaderPETemplate, peData[peHeaderPEOffset:peHeaderPEOffset + 24])
     Signature = peHeaderPE[0]
     Machine = peHeaderPE[1]
     print('Architecture: ', hex(Machine))
@@ -363,56 +353,58 @@ if peFlag:
     SizeOfOptionalHeader = peHeaderPE[6]
     Characteristics = peHeaderPE[7]
     print('Attributes:')
-    if (Characteristics & (1 << 0)) >> 0 == 1:#0b1 0x1
+    if (Characteristics & (1 << 0)) >> 0 == 1:  # 0b1 0x1
         print("\tIMAGE_FILE_RELOCS_STRIPPED")
-    if (Characteristics & (1 << 1)) >> 1 == 1:#0b10 0x2
+    if (Characteristics & (1 << 1)) >> 1 == 1:  # 0b10 0x2
         print("\tIMAGE_FILE_EXECUTABLE_IMAGE")
-    if (Characteristics & (1 << 2)) >> 2 == 1:#0b100 0x4
+    if (Characteristics & (1 << 2)) >> 2 == 1:  # 0b100 0x4
         print("\tIMAGE_FILE_LINE_NUMS_STRIPPED")
-    if (Characteristics & (1 << 3)) >> 3 == 1:#0b1000 0x8
+    if (Characteristics & (1 << 3)) >> 3 == 1:  # 0b1000 0x8
         print("\tIMAGE_FILE_LOCAL_SYMS_STRIPPED")
-    if (Characteristics & (1 << 4)) >> 4 == 1:#0b10000 0x10
+    if (Characteristics & (1 << 4)) >> 4 == 1:  # 0b10000 0x10
         print("\tIMAGE_FILE_AGGRESIVE_WS_TRIM")
-    if (Characteristics & (1 << 5)) >> 5 == 1:#0b100000 0x20
+    if (Characteristics & (1 << 5)) >> 5 == 1:  # 0b100000 0x20
         print("\tIMAGE_FILE_LARGE_ADDRESS_AWARE")
-    if (Characteristics & (1 << 6)) >> 6 == 1:#0b1000000 0x40
+    if (Characteristics & (1 << 6)) >> 6 == 1:  # 0b1000000 0x40
         print("\tIMAGE_FILE_16BIT_MACHINE")
-    if (Characteristics & (1 << 7)) >> 7 == 1:#0b10000000 0x80
+    if (Characteristics & (1 << 7)) >> 7 == 1:  # 0b10000000 0x80
         print("\tIMAGE_FILE_BYTES_REVERSED_LO")
-    if (Characteristics & (1 << 8)) >> 8 == 1:#0b100000000 0x100
+    if (Characteristics & (1 << 8)) >> 8 == 1:  # 0b100000000 0x100
         print("\tIMAGE_FILE_32BIT_MACHINE")
-    if (Characteristics & (1 << 9)) >> 9 == 1:#0b1000000000 0x200
+    if (Characteristics & (1 << 9)) >> 9 == 1:  # 0b1000000000 0x200
         print("\tIMAGE_FILE_DEBUG_STRIPPED")
-    if (Characteristics & (1 << 10)) >> 10 == 1:#0b10000000000 0x400
+    if (Characteristics & (1 << 10)) >> 10 == 1:  # 0b10000000000 0x400
         print("\tIMAGE_FILE_REMOVABLE_RUN_FROM_SWAP")
-    if (Characteristics & (1 << 11)) >> 11 == 1:#0b100000000000 0x800
+    if (Characteristics & (1 << 11)) >> 11 == 1:  # 0b100000000000 0x800
         print("\tIMAGE_FILE_NET_RUN_FROM_SWAP")
-    if (Characteristics & (1 << 12)) >> 12 == 1:#0b1000000000000 0x1000
+    if (Characteristics & (1 << 12)) >> 12 == 1:  # 0b1000000000000 0x1000
         print("\tIMAGE_FILE_SYSTEM ")
-    if (Characteristics & (1 << 13)) >> 13 == 1:#0b10000000000000 0x2000
+    if (Characteristics & (1 << 13)) >> 13 == 1:  # 0b10000000000000 0x2000
         print("\tIMAGE_FILE_DLL")
-    if (Characteristics & (1 << 14)) >> 14 == 1:#0b100000000000000 0x4000
+    if (Characteristics & (1 << 14)) >> 14 == 1:  # 0b100000000000000 0x4000
         print("\tIMAGE_FILE_UP_SYSTEM_ONLY")
-    if (Characteristics & (1 << 15)) >> 15 == 1:#0b1000000000000000 0x8000
+    if (Characteristics & (1 << 15)) >> 15 == 1:  # 0b1000000000000000 0x8000
         print("\tIMAGE_FILE_BYTES_REVERSED_HI")
 
     print('--------------------------')
     print()
     print()
-    #print(SizeOfOptionalHeader)
+    # print(SizeOfOptionalHeader)
     peOptionHeaderPointer = peHeaderPEOffset + 24
     peOptionHeaderTemplate = 'H2c9I6H4I2H6I32I'
     peOptionHeaderTemplate = 'H2c5IQ2I6H4I2H4Q2I32I'
-    peOptionHeader = struct.unpack(peOptionHeaderTemplate, peData[peOptionHeaderPointer:peOptionHeaderPointer + SizeOfOptionalHeader])
-    #print(peOptionHeader[30:])
-    peDataPointer = peHeaderPEOffset + 24 + 112# + SizeOfOptionalHeader + 11
+    peOptionHeader = struct.unpack(
+        peOptionHeaderTemplate, peData[peOptionHeaderPointer:peOptionHeaderPointer + SizeOfOptionalHeader])
+    # print(peOptionHeader[30:])
+    peDataPointer = peHeaderPEOffset + 24 + 112  # + SizeOfOptionalHeader + 11
     peDataTemplate = '2I'
     for i in range(16):
-        peDataS = struct.unpack(peDataTemplate, peData[peDataPointer:peDataPointer + 8])
+        peDataS = struct.unpack(
+            peDataTemplate, peData[peDataPointer:peDataPointer + 8])
         if i == 1:
             peimportVA = peDataS[0]
             peimportSize = peDataS[1]
-            #print(peimportVA)
+            # print(peimportVA)
         # if i == 1:
         #     prImportVa = peDataS[0]
         #     peImportSize = peDataS[1]
@@ -421,13 +413,15 @@ if peFlag:
     print('---------SECTIONS---------')
     peSectionTemplate = '8cI5I2HI'
     pePoint = peHeaderPEOffset + 24 + SizeOfOptionalHeader
-    print("%4s%20s%20s%20s%20s" % ('[ x]', 'Section name', 'Section offset', 'Section addr', 'Section attr'))
+    print("%4s%20s%20s%20s%20s" % (
+        '[ x]', 'Section name', 'Section offset', 'Section addr', 'Section attr'))
 
     curExpAddr = 0
     importSectionAddr = 0
 
     for i in range(NumberOfSections):
-        peCurrentSection = struct.unpack(peSectionTemplate, peData[pePoint:pePoint + 40])
+        peCurrentSection = struct.unpack(
+            peSectionTemplate, peData[pePoint:pePoint + 40])
         peCurrentSectionName = peCurrentSection[0:8]
         name = ''
         for k in range(8):
@@ -444,34 +438,27 @@ if peFlag:
             curExpAddr = peCurrentSectionAddr
             curRaw = peCurrentSectionPointerRaw
 
-
         peCurrentSectionPointerRel = peCurrentSection[12]
         peCurrentSectionPointerLin = peCurrentSection[13]
         peCurrentSectionNumberRel = peCurrentSection[14]
         peCurrentSectionNumberLin = peCurrentSection[15]
         peCurrentSectionCharacteristics = peCurrentSection[16]
         pePoint += 40
-        #print(peCurrentSectionAddr)
-        #print(peCurrentSectionPointerRaw)
-        #print('-')
-        #print(hex(2753692 - peCurrentSectionAddr + peCurrentSectionPointerRaw))
-        print("[%2d]%20s%20s%20s%22s" % (i, name, hex(peCurrentSectionPointerRaw), hex(peCurrentSectionAddr), hex(peCurrentSectionCharacteristics)))
-
-
+        print("[%2d]%20s%20s%20s%22s" % (i, name, hex(peCurrentSectionPointerRaw), hex(
+            peCurrentSectionAddr), hex(peCurrentSectionCharacteristics)))
 
     print('--------------------------')
     print()
     print()
 
-
     print('---------IMPORTS----------')
-
 
     importSectionAddrRAWAddr = peimportVA - importSectionAddr + importSectionRaw
     alph = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._--01234567890'
     libs = []
     for kk in range(int(peimportSize / 20)):
-        x = struct.unpack('5I', peData[importSectionAddrRAWAddr:importSectionAddrRAWAddr + 20])
+        x = struct.unpack(
+            '5I', peData[importSectionAddrRAWAddr:importSectionAddrRAWAddr + 20])
         libRVA = x[3]
         libRAW = libRVA - importSectionAddr + importSectionRaw
         libName = ''
