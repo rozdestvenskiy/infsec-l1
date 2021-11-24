@@ -189,7 +189,7 @@ if machoFlag:
     print('Commands number: ', machoNumberCommands)
     machoSizeCommands = machoHeader[5]
     machoFlags = machoHeader[6]
-    machoFlags = 0x100085
+    #machoFlags = 0x100085
     flags = machoFlags
     print('Flags: ', hex(flags))
     if (flags & (1 << 0)) >> 0 == 1:
