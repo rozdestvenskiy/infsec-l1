@@ -62,8 +62,6 @@ elfSectionTemplate = '2I4Q2I2Q'
 pointer = elfSectionOffset
 size = elfSectionHeaderTableEntrySize
 #print('Section name\tSection type\tSection offset\tSection addr\t')
-print("%4s%20s%20s%20s%20s" % (
-    '[x]', 'Section name', 'Section type', 'Section offset', 'Section addr'))
 types = ['NULL', 'PROGBITS', 'SYMTAB', 'STRTAB', 'RELA', 'HASH', 'DYNAMIC', 'NOTE', 'NOBITS', 'REL', 'SHLIB', 'DYNSYM',
          'INIT_ARRAY', 'FINI_ARRAY', 'PREINIT_ARRA', 'GROUP', 'SYMTAB_SHNDX', 'LOOS', 'HIOS', 'LOPROC', 'HIPROC', 'LOUSER', 'HIUSER']
 namesSectPointer = pointer + size * (elfSectionHeaderTableEntryCount - 1)
@@ -116,10 +114,10 @@ for i in range(elfSectionHeaderTableEntryCount):
         print('-------Task 4--------')
         namesx = ''
         templx = sectionSize * 'c'
-        print(hex(sectionOffset))
-        print(sectionSize)
+        #print(hex(sectionOffset))
+        #print(sectionSize)
         strax = struct.unpack(templx, elfData[sectionOffset:sectionOffset + sectionSize])
-        print(strax)
+        #print(strax)
         for j in range(len(strax)):
             if strax[j] == b"\x00":
                 print(namesx)
@@ -142,7 +140,7 @@ print()
 
 
 print('-------TASK-5----------')
-macho = 'ip.o'
+macho = 'test'
 machoFile = open(macho, 'rb')
 machoData = machoFile.read()
 
@@ -249,7 +247,6 @@ print('-------TASK-6----------')
 machoLoadCommandTemplate = '2I'
 machoSegmentTemplate = '2I16c4Q2i2I'
 machoSectionTemplate = '16c16c2Q8I'
-print("%s%25s%30s%30s" %('Segment name', 'Segment name', 'Section offset', 'Section addr'))
 for i in range(machoNumberCommands):
     CurrentLoadCommand = struct.unpack(
         machoLoadCommandTemplate, machoData[currentPoint:currentPoint + 8])
@@ -289,7 +286,7 @@ for i in range(machoNumberCommands):
                 print('Segment sections count: ', CurrentSegmentNSects)
                 print('Sections: ')
                 fl = 1
-            print('\t', CurrentSectionName)
+            print('\t', name)
             CurrentSectionAddr = CurrentSection[32]
             CurrentSectionSize = CurrentSection[33]
             CurrentSectionOffset = CurrentSection[34]
@@ -308,6 +305,7 @@ print()
 
 
 print('-------TASK-9----------')
+pe = 'notepad++.exe'
 peFile = open(pe, 'rb')
 peData = peFile.read()
 
@@ -395,6 +393,7 @@ print('--------------------------')
 print()
 print()
 #print(SizeOfOptionalHeader)
+print('---------TASK-11----------')
 peOptionHeaderPointer = peHeaderPEOffset + 24
 peOptionHeaderTemplate = 'H2c9I6H4I2H6I32I'
 peOptionHeaderTemplate = 'H2c5IQ2I6H4I2H4Q2I32I'
@@ -414,7 +413,6 @@ for i in range(16):
     peDataPointer += 8
 peSectionTemplate = '8cI5I2HI'
 pePoint = peHeaderPEOffset + 24 + SizeOfOptionalHeader
-print("%4s%20s%20s%20s%20s" % ('[ x]', 'Section name', 'Section offset', 'Section addr', 'Section attr'))
 
 curExpAddr = 0
 importSectionAddr = 0
