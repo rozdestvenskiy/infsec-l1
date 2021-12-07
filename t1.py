@@ -245,38 +245,62 @@ print()
 
 
 
-print('-------TASK-8----------')
+print('-------TASK-6----------')
 machoLoadCommandTemplate = '2I'
 machoSegmentTemplate = '2I16c4Q2i2I'
 machoSectionTemplate = '16c16c2Q8I'
+print("%s%25s%30s%30s" %('Segment name', 'Segment name', 'Section offset', 'Section addr'))
 for i in range(machoNumberCommands):
-    CurrentLoadCommand = struct.unpack(machoLoadCommandTemplate, machoData[currentPoint:currentPoint + 8])
+    CurrentLoadCommand = struct.unpack(
+        machoLoadCommandTemplate, machoData[currentPoint:currentPoint + 8])
     CurrentLoadCommandType = CurrentLoadCommand[0]
     CurrentLoadCommandSize = CurrentLoadCommand[1]
-    #print(hex(CurrentLoadCommandType), hex(CurrentLoadCommandSize))
-    #print(hex(CurrentLoadCommandType))
-    if CurrentLoadCommandType == 0x2:
-        dynamicTemplate = '6I'
-        cmd = struct.unpack(dynamicTemplate, machoData[currentPoint:currentPoint + 24])
-        cmdType = cmd[0]
-        cmdSize = cmd[1]
-        cmdSymOff = cmd[2]
-        cmdNSyms = cmd[3]
-        cmdStrOff = cmd[4]
-        cmdStrSize = cmd[5]
-        list = struct.unpack(cmdStrSize * 'c', machoData[cmdStrOff:cmdStrOff + cmdStrSize])
-        #print(list)
-        sym = ''
-        for k in range(cmdStrSize):
-            if list[k] == b"\x00":
-                print(sym)
-                sym = ''
-            else:
-                sym += list[k].decode('utf-8', 'backslashreplace')
-        #print(sym)
-        #cmdTime = cmd[]
-        #print(path)
-
+    if CurrentLoadCommandType == 0x19:
+        # That means this is segment (LC_SEGMENT_64)
+        CurrentSegment = struct.unpack(machoSegmentTemplate, machoData[currentPoint:currentPoint + 72])
+        CurrentSegmentCmd = CurrentSegment[0]
+        CurrentSegmentSize = CurrentSegment[1]
+        CurrentSegmentName = str(CurrentSegment[2:18])
+        CurrentSegmentVMAddr = CurrentSegment[18]
+        CurrentSegmentVMSize = CurrentSegment[19]
+        CurrentSegmentFileOff = CurrentSegment[20]
+        CurrentSegmentFileSize = CurrentSegment[21]
+        CurrentSegmentMaxProt = CurrentSegment[22]
+        CurrentSegmentInitProt = CurrentSegment[23]
+        CurrentSegmentNSects = CurrentSegment[24]
+        CurrentSegmentFlags = CurrentSegment[25]
+        fl = 0
+        currentPointSects = currentPoint + 72
+        for j in range(CurrentSegmentNSects):
+            CurrentSection = struct.unpack(machoSectionTemplate, machoData[currentPointSects:currentPointSects + 80])
+            CurrentSectionName = CurrentSection[0:16]
+            name = ''
+            for k in range(16):
+                name += CurrentSectionName[k].decode(
+                        'utf-8', 'backslashreplace')
+            CurrentSectionSegName = CurrentSection[16:32]
+            nameSeg = ''
+            if fl == 0:
+                for k in range(16):
+                    nameSeg += CurrentSectionSegName[k].decode('utf-8', 'backslashreplace')
+                print('Segment Name: ', nameSeg)
+                print('Segment Offset: ', CurrentSegmentFileOff)
+                print('Segment VA: ', CurrentSegmentVMAddr)
+                print('Segment sections count: ', CurrentSegmentNSects)
+                print('Sections: ')
+                fl = 1
+            print('\t', CurrentSectionName)
+            CurrentSectionAddr = CurrentSection[32]
+            CurrentSectionSize = CurrentSection[33]
+            CurrentSectionOffset = CurrentSection[34]
+            CurrentSectionAlign = CurrentSection[35]
+            CurrentSectionRelOff = CurrentSection[36]
+            CurrentSectionNReloc = CurrentSection[37]
+            CurrentSectionFlags = CurrentSection[38]
+            CurrentSectionRes1 = CurrentSection[39]
+            CurrentSectionRes2 = CurrentSection[40]
+            CurrentSectionRes3 = CurrentSection[41]
+            currentPointSects += 80
     currentPoint += CurrentLoadCommandSize
 print('-----------------------')
 print()
